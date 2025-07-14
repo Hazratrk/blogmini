@@ -4,10 +4,10 @@ const CategoryModel = require("../models/categoryModel");
 const getAll = async () =>
   await CategoryModel.find().populate("products").lean();
 
-//get one
+
 const getOne = async (id) =>
   await CategoryModel.findById(id).populate("products", "title").lean();
-//post
+
 const post = async (payload) => await CategoryModel.create(payload);
 
 
