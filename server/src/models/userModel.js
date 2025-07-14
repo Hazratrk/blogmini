@@ -24,7 +24,7 @@ const userSchema = new mongoose.Schema({
     default: 'client',
   },
 }, {
-  timestamps: true, // createdAt və updatedAt avtomatik əlavə edir
+  timestamps: true, 
 });
 
 module.exports = mongoose.model('User', userSchema);

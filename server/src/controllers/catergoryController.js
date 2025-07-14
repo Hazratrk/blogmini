@@ -1,28 +1,40 @@
-// controllers/categoryController.js
-const Category = require('../models/categoryModel');
+const Category = require("../models/categoryModel");
 
-exports.getAllCategories = async (req, res) => {
+
+const getAllCategories = async (req, res) => {
   try {
     const categories = await Category.find();
-    res.status(200).json(categories);
+    res.json(categories);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ error: error.message });
   }
 };
 
-
-exports.createCategory = async (req, res) => {
-  const { name } = req.body;
+const createCategory = async (req, res) => {
   try {
-    const newCategory = new Category({ name });
-    await newCategory.save();
-    res.status(201).json(newCategory);
+    const newCategory = new Category(req.body);
+    const saved = await newCategory.save();
+    res.status(201).json(saved);
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    res.status(400).json({ error: error.message });
   }
 };
 
-exports.getBlogsByCategory = async (req, res) => {
 
-  res.status(501).json({ message: "Bu endpoint hələ hazırlanmayıb." });
+const getCategoryById = async (req, res) => {
+  try {
+    const category = await Category.findById(req.params.id);
+    if (!category) return res.status(404).json({ message: "Not found" });
+    res.json(category);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
+
+
+module.exports = {
+  getAllCategories,
+  createCategory,
+  getCategoryById,
 };

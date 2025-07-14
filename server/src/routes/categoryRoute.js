@@ -1,14 +1,16 @@
-// routes/categoryRoutes.js
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const categoryController = require('../controllers/catergoryController');
 
+const {
+  getAllCategories,
+  createCategory,
+  getCategoryById,
+ 
+} = require("../controllers/catergoryController");
 
-router.get('/', categoryController.getAllCategories);
+router.get("/", getAllCategories);
+router.post("/", createCategory);
+router.get("/:id", getCategoryById);
 
-
-router.post('/', categoryController.createCategory);
-
-router.get('/:id/blogs', categoryController.getBlogsByCategory); 
 
 module.exports = router;
