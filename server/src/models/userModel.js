@@ -1,5 +1,4 @@
-// blog-app-server/models/User.js
-
+// models/User.js
 const mongoose = require('mongoose');
 
 const userSchema = new mongoose.Schema({
@@ -16,7 +15,7 @@ const userSchema = new mongoose.Schema({
     lowercase: true,
   },
   password: {
-    type: String, // Will be hashed with bcrypt
+    type: String,
     required: true,
   },
   role: {
@@ -24,10 +23,8 @@ const userSchema = new mongoose.Schema({
     enum: ['client', 'admin'],
     default: 'client',
   },
-  createdAt: {
-    type: Date,
-    default: Date.now,
-  },
+}, {
+  timestamps: true, // createdAt və updatedAt avtomatik əlavə edir
 });
 
 module.exports = mongoose.model('User', userSchema);

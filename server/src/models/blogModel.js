@@ -1,5 +1,4 @@
-// blog-app-server/models/Blog.js
-
+// models/Blog.js
 const mongoose = require('mongoose');
 
 const blogSchema = new mongoose.Schema({
@@ -14,7 +13,6 @@ const blogSchema = new mongoose.Schema({
   },
   image: {
     type: String,
-    default: '',
   },
   categoryId: {
     type: mongoose.Schema.Types.ObjectId,
@@ -23,13 +21,11 @@ const blogSchema = new mongoose.Schema({
   },
   authorId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
+    ref: 'User', 
     required: true,
   },
-  createdAt: {
-    type: Date,
-    default: Date.now,
-  },
+}, {
+  timestamps: true,
 });
 
 module.exports = mongoose.model('Blog', blogSchema);

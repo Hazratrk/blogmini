@@ -1,5 +1,4 @@
-// blog-app-server/models/Category.js
-
+// models/Category.js
 const mongoose = require('mongoose');
 
 const categorySchema = new mongoose.Schema({
@@ -9,10 +8,8 @@ const categorySchema = new mongoose.Schema({
     unique: true,
     trim: true,
   },
-  createdAt: {
-    type: Date,
-    default: Date.now,
-  },
+}, {
+  timestamps: true,
 });
 
 module.exports = mongoose.model('Category', categorySchema);
