@@ -8,21 +8,24 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-
+// ROUTES
 const categoryRoutes = require("./src/routes/categoryRoute");
-const blogRoutes = require("./src/routes/blogRoutes"); 
+const blogRoutes = require("./src/routes/blogRoutes");
+const authRoutes = require("./src/routes/authRoutes"); 
 
+// USE ROUTES
 app.use("/api/categories", categoryRoutes);
-app.use("/api/blogs", blogRoutes); 
+app.use("/api/blogs", blogRoutes);
+app.use("/api/auth", authRoutes); 
 
 app.get("/", (req, res) => {
   res.send("Server running");
 });
 
-// MongoDB 
+// MongoDB bağlantısı
 mongoose.connect(process.env.MONGO_URI)
   .then(() => {
     console.log("MongoDB connected");
-    app.listen(PORT , () => console.log("Server is running on port", PORT));
+    app.listen(PORT, () => console.log("Server is running on port", PORT));
   })
   .catch((err) => console.error("MongoDB connection error:", err));
