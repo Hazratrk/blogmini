@@ -1,35 +1,35 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../../src/context/AuthContext';
 
 function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
-  const { login } = useAuth(); 
+  const { login } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMessage('');
 
     if (!email || !password) {
-      setMessage('Xahiş edirik bütün sahələri doldurun.');
+      setMessage('Please fill in all fields.');
       return;
     }
 
     const result = await login(email, password);
     if (!result.success) {
-      setMessage(`Giriş zamanı xəta: ${result.message}`);
+      setMessage(`Login error: ${result.message}`);
     }
-    
+
   };
 
   return (
     <div className="page-content bg-white p-8 rounded-lg shadow-lg max-w-md mx-auto">
-      <h2 className="text-3xl font-bold text-gray-800 mb-6 text-center">Daxil Ol</h2>
+      <h2 className="text-3xl font-bold text-gray-800 mb-6 text-center">Login</h2>
       <form onSubmit={handleSubmit} className="space-y-6">
         <div>
-          <label htmlFor="email" className="block text-gray-700 text-sm font-bold mb-2">E-poçt:</label>
+          <label htmlFor="email" className="block text-gray-700 text-sm font-bold mb-2">Email:</label>
           <input
             type="email"
             id="email"
@@ -40,7 +40,7 @@ function LoginPage() {
           />
         </div>
         <div>
-          <label htmlFor="password" className="block text-gray-700 text-sm font-bold mb-2">Şifrə:</label>
+          <label htmlFor="password" className="block text-gray-700 text-sm font-bold mb-2">Password:</label>
           <input
             type="password"
             id="password"
@@ -54,16 +54,16 @@ function LoginPage() {
           type="submit"
           className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg focus:outline-none focus:shadow-outline transition duration-300 w-full"
         >
-          Daxil Ol
+          Login
         </button>
       </form>
       {message && (
-        <p className={`mt-4 text-center font-semibold ${message.includes('xəta') ? 'text-red-500' : 'text-green-600'}`}>
+        <p className={`mt-4 text-center font-semibold ${message.includes('error') ? 'text-red-500' : 'text-green-600'}`}>
           {message}
         </p>
       )}
       <p className="mt-6 text-center text-gray-600">
-        Hesabınız yoxdur? <Link to="/register" className="text-blue-500 hover:underline">Qeydiyyatdan keçin</Link>
+        Don't have an account? <Link to="/register" className="text-blue-500 hover:underline">Register</Link>
       </p>
     </div>
   );
