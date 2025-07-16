@@ -2,21 +2,37 @@ const express = require('express');
 const router = express.Router();
 const Blog = require('../models/blogModel');
 const mongoose = require('mongoose');
+const upload = require('../middlewares/multer');
 
 
 
-router.post('/', async (req, res) => {
+router.post('/', upload.single('image'), async (req, res) => {
   try {
     const { title, content, user } = req.body;
+
+    if (!title || !content || !user) {
+      return res.status(400).json({
+        success: false,
+        message: 'Title, content, and user are required.',
+      });
+    }
 
     if (!mongoose.Types.ObjectId.isValid(user)) {
       return res.status(400).json({ success: false, message: 'Invalid user ID' });
     }
 
-    const newBlog = new Blog({ title, content, user });
+    const newBlog = new Blog({
+      title,
+      content,
+      user,
+      image: req.file ? req.file.path : null, // şəkil varsa əlavə et, yoxdursa null
+    });
+
     await newBlog.save();
     res.status(201).json({ success: true, data: newBlog });
+
   } catch (error) {
+    console.error('Error creating blog:', error);
     res.status(500).json({ success: false, message: error.message });
   }
 });

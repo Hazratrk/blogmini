@@ -1,12 +1,21 @@
+// backend/server.js
+
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 require("dotenv").config();
-const PORT = process.env.PORT;
+const path = require("path"); 
 
 const app = express();
+
+// CORS üçün middleware
 app.use(cors());
+
+// Body 
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+app.use("/uploads", express.static(path.join(__dirname, "uploads"))); 
 
 // ROUTES
 const categoryRoutes = require("./src/routes/categoryRoute");
@@ -23,6 +32,8 @@ app.get("/", (req, res) => {
 });
 
 // MongoDB bağlantısı
+const PORT = process.env.PORT || 5450; 
+
 mongoose.connect(process.env.MONGO_URI)
   .then(() => {
     console.log("MongoDB connected");
