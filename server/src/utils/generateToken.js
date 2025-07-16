@@ -1,11 +1,15 @@
 const jwt = require('jsonwebtoken');
 
-const generateToken = (user) => {
-  return jwt.sign(
-    { id: user._id, role: user.role },
-    process.env.JWT_SECRET,
-    { expiresIn: '7d' }
-  );
+
+const JWT = process.env.JWT_SECRET
+console.log(JWT)
+
+const generateToken = (payload, expiresIn = "1h") => {
+  const token = jwt.sign( payload, JWT, {
+    expiresIn
+  });
+
+  return token
 };
 
 module.exports = generateToken;
