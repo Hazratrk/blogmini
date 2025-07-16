@@ -8,12 +8,13 @@ const path = require("path");
 
 const app = express();
 
-// CORS üçün middleware
+
 app.use(cors());
 
-// Body 
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
 
 app.use("/uploads", express.static(path.join(__dirname, "uploads"))); 
 
@@ -31,7 +32,7 @@ app.get("/", (req, res) => {
   res.send("Server running");
 });
 
-// MongoDB bağlantısı
+// MongoDB 
 const PORT = process.env.PORT || 5450; 
 
 mongoose.connect(process.env.MONGO_URI)

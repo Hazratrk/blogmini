@@ -1,75 +1,38 @@
 const express = require('express');
 const router = express.Router();
-const Blog = require('../models/blogModel');
-const mongoose = require('mongoose');
-const upload = require('../middlewares/multer');
+const blogController = require('../controllers/blogController');
+const multer = require('multer');
+const path = require('path');
 
-
-
-router.post('/', upload.single('image'), async (req, res) => {
-  try {
-    const { title, content, user } = req.body;
-
-    if (!title || !content || !user) {
-      return res.status(400).json({
-        success: false,
-        message: 'Title, content, and user are required.',
-      });
-    }
-
-    if (!mongoose.Types.ObjectId.isValid(user)) {
-      return res.status(400).json({ success: false, message: 'Invalid user ID' });
-    }
-
-    const newBlog = new Blog({
-      title,
-      content,
-      user,
-      image: req.file ? req.file.path : null, // şəkil varsa əlavə et, yoxdursa null
-    });
-
-    await newBlog.save();
-    res.status(201).json({ success: true, data: newBlog });
-
-  } catch (error) {
-    console.error('Error creating blog:', error);
-    res.status(500).json({ success: false, message: error.message });
-  }
+// Multer disk 
+const storage = multer.diskStorage({
+destination: function (req, file, cb) {
+cb(null, 'uploads/'); 
+},
+filename: function (req, file, cb) {
+cb(null, `${file.fieldname}-${Date.now()}${path.extname(file.originalname)}`);
+},
 });
 
-
-router.get('/', async (req, res) => {
-  try {
-    const blogs = await Blog.find().populate('user', 'name email');
-    res.json({ success: true, data: blogs });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
-  }
+// Multer
+const upload = multer({
+storage: storage,
+limits: { fileSize: 1024 * 1024 * 5 } 
 });
 
-
-router.put('/:id', async (req, res) => {
-  try {
-    const { title, content } = req.body;
-    const updated = await Blog.findByIdAndUpdate(
-      req.params.id,
-      { title, content },
-      { new: true }
-    );
-    res.json({ success: true, data: updated });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
-  }
-});
+router.get('/', blogController.getAllBlogs);
 
 
-router.delete('/:id', async (req, res) => {
-  try {
-    await Blog.findByIdAndDelete(req.params.id);
-    res.json({ success: true, message: 'Blog deleted' });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
-  }
-});
+router.get('/:id', blogController.getBlogById); 
+
+
+router.post('/', upload.single('image'), blogController.createBlog);
+
+
+router.put('/:id', blogController.updateBlog); 
+
+
+
+router.delete('/:id', blogController.deleteBlog);
 
 module.exports = router;
