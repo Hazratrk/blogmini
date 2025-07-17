@@ -1,35 +1,36 @@
-const { Schema, model } = require("mongoose");
+// backend/src/schemas/blogSchema.js
 
-const blogSchema = new Schema(
-  {
-    title: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-    content: {
-      type: String,
-      required: true,
-    },
-    image: {
-      type: String,
-      required: false,
-    },
-    categoryId: {
-      type: Schema.Types.ObjectId,
-      ref: 'Category',
-      required: true,
-    },
-    authorId: {
-      type: Schema.Types.ObjectId,
-      ref: 'User',
-      required: true,
-    },
+const mongoose = require('mongoose');
+
+const blogSchema = new mongoose.Schema({
+  title: {
+    type: String,
+    required: [true, 'Blog title is required'],
+    trim: true
   },
-  {
-    timestamps: true,
-    versionKey: false,
-  }
-);
+  content: {
+    type: String,
+    required: [true, 'Blog content is required']
+  },
+  imageUrl: { 
+    type: String,
 
-module.exports = model("Blog", blogSchema);
+    default: 'https://mailrelay.com/wp-content/uploads/2018/03/que-es-un-blog-1.png' 
+  },
+  categoryId: {
+    type: mongoose.Schema.Types.ObjectId,
+    required: [true, 'Category ID is required'],
+    ref: 'Category'
+  },
+  authorId: {
+    type: mongoose.Schema.Types.ObjectId,
+    required: [true, 'Author ID is required'],
+    ref: 'User'
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now
+  }
+});
+
+module.exports = mongoose.model('Blog', blogSchema);

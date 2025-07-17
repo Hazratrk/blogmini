@@ -165,7 +165,7 @@ const updatePassword = asyncHandler(async (req, res, next) => {
     throw new Error('New password and confirm password do not match');
   }
 
-  const user = await User.findById(req.user.id).select('+password'); // Şifrəni də gətiririk
+  const user = await User.findById(req.user.id).select('+password'); 
 
   if (!user) {
     res.status(404);

@@ -1,6 +1,6 @@
 const multer = require("multer");
 const { CloudinaryStorage } = require("multer-storage-cloudinary");
-const cloudinary = require("../config/cloudinary");
+const cloudinary = require("../config/cloudinaryConfig.js");
 const path = require("path");
 
 const allowedFormats = ["image/jpeg", "image/png", "image/jpg", "image/webp"];
