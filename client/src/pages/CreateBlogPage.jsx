@@ -1,8 +1,9 @@
-// src/pages/CreateBlogPage.jsx
+
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axiosInstance from '../../api/axiosInstance';
+import { jwtDecode } from 'jwt-decode'; 
 
 function CreateBlogPage() {
   const navigate = useNavigate();
@@ -61,10 +62,36 @@ function CreateBlogPage() {
       return;
     }
 
+ 
+    const token = localStorage.getItem('token');
+    let authorId = null;
+
+    if (token) {
+      try {
+        const decodedToken = jwtDecode(token);
+       
+        console.log("Frontend - Decoded token:", decodedToken);
+
+        authorId = decodedToken.id || decodedToken._id; 
+      } catch (decodeError) {
+        console.error("Error decoding token:", decodeError);
+        setFormMessage('Invalid authentication token. Please log in again.');
+        return;
+      }
+    }
+
+    console.log("Frontend - Derived authorId before sending:", authorId);
+
+    if (!authorId) { 
+      setFormMessage('You must be logged in to create a blog. Author ID is missing.');
+      return;
+    }
+
     const formData = new FormData();
     formData.append('title', newBlog.title);
     formData.append('content', newBlog.content);
     formData.append('categoryId', newBlog.categoryId);
+    formData.append('authorId', authorId); // Tokenden id ucun gondermek
     if (imageFile) {
       formData.append('image', imageFile);
     }
@@ -82,25 +109,20 @@ function CreateBlogPage() {
         categoryId: '',
       });
       setImageFile(null);
-      navigate(`/blogs/${response.data.data._id}`);
+      navigate(`/blogs/${response.data.data._id}`); 
     } catch (err) {
-      console.error('Error creating blog:', err.response ? err.response.data : err.message);
-      setFormMessage(`Error: ${err.response ? err.response.data.message : err.message}`);
+      console.error('Error creating blog, full response:', err.response ? err.response.data : err.message);
+
+      setFormMessage(`Error: ${err.response && err.response.data && typeof err.response.data.message === 'string' ? err.response.data.message : err.message}`);
     }
   };
 
-  if (loadingCategories) {
-    return <div className="page-content text-center text-xl font-medium text-gray-700">Loading categories...</div>;
-  }
-
-  if (errorCategories) {
-    return <div className="page-content error-message text-center text-red-600 font-bold bg-red-100 p-6 rounded-lg border border-red-400">Category loading error: {errorCategories}. Please check the console.</div>;
-  }
 
   return (
     <div className="page-content bg-white p-8 md:p-12 rounded-lg shadow-xl max-w-2xl mx-auto my-8">
       <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-8 text-center">Create New Blog Post</h2>
       <form onSubmit={handleSubmit} className="space-y-6">
+
         <div>
           <label htmlFor="title" className="block text-gray-700 text-sm font-bold mb-2">Title:</label>
           <input
@@ -155,7 +177,6 @@ function CreateBlogPage() {
             ))}
           </select>
         </div>
-
         <button
           type="submit"
           className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition duration-300 w-full text-lg"

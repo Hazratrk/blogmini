@@ -1,4 +1,4 @@
-// src/App.jsx
+
 
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, Navigate } from 'react-router-dom';
@@ -10,9 +10,9 @@ import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import NotFoundPage from './pages/NotFoundPage';
 import HomePage from './pages/HomePage';
-import ProfilePage from './pages/ProfilePage'; // Make sure this path is correct
+import ProfilePage from './pages/ProfilePage';
 
-import { AuthProvider, useAuth } from './context/AuthContext';
+import { AuthProvider, useAuth } from './context/AuthContext'; 
 
 import './index.css';
 
@@ -68,6 +68,7 @@ function DynamicHeader() {
     </header>
   );
 }
+
 
 const PrivateRoute = ({ children }) => {
   const { isAuthenticated, loading } = useAuth();

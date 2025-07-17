@@ -9,7 +9,7 @@ const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: (_, file) => {
     const fileExtension = path.extname(file.originalname).substring(1);
-    const publicId = `${file.fieldname}-${Date.now()}`; //set to cloudinary
+    const publicId = `${file.fieldname}-${Date.now()}`; 
 
     return {
       public_id: publicId,

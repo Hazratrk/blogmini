@@ -1,80 +1,88 @@
-import React, { createContext, useState, useEffect, useContext } from 'react';
-import axiosInstance from '../../api/axiosInstance';
-import { useNavigate } from 'react-router-dom';
+//AuthContext.jsx
 
-const AuthContext = createContext(null);
+import React, { createContext, useState, useEffect, useContext } from 'react'; 
+import axiosInstance from '../../api/axiosInstance'
+import { jwtDecode } from 'jwt-decode';
 
-export const useAuth = () => useContext(AuthContext);
+export const AuthContext = createContext();
+
+
+export const useAuth = () => {
+  return useContext(AuthContext);
+};
 
 export const AuthProvider = ({ children }) => {
+  const [isAuthenticated, setIsAuthenticated] = useState(false); 
   const [user, setUser] = useState(null);
-  const [token, setToken] = useState(localStorage.getItem('token') || null);
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
+
 
   useEffect(() => {
-    const loadUser = async () => {
+    const checkUser = async () => {
+      const token = localStorage.getItem('token');
       if (token) {
         try {
+          const decodedToken = jwtDecode(token);
+          if (decodedToken.exp * 1000 < Date.now()) {
+            logout(); 
+            return;
+          }
+
+
           const res = await axiosInstance.get('/auth/me');
           setUser(res.data.data);
+          setIsAuthenticated(true);
         } catch (error) {
-          console.error('Token validation failed or server error:', error);
-          logout();
+          console.error("Authentication check failed:", error);
+          logout(); 
         }
       }
       setLoading(false);
     };
-    loadUser();
-  }, [token]);
+    checkUser();
+  }, []);
 
   const login = async (email, password) => {
     try {
       const res = await axiosInstance.post('/auth/login', { email, password });
-      const { token: receivedToken, user: userData } = res.data;
-
-      localStorage.setItem('token', receivedToken);
-      setToken(receivedToken);
-      setUser(userData);
-      navigate('/');
-      return { success: true };
+      localStorage.setItem('token', res.data.token);
+      setUser(res.data.user); 
+      setIsAuthenticated(true);
+      return res.data;
     } catch (error) {
       console.error('Login error:', error.response ? error.response.data.message : error.message);
-      return { success: false, message: error.response ? error.response.data.message : 'Unknown error' };
+      throw error;
     }
   };
 
   const register = async (fullName, email, password) => {
     try {
-      await axiosInstance.post('/auth/register', { fullName, email, password });
-      navigate('/login');
-      return { success: true };
+      const res = await axiosInstance.post('/auth/register', { fullName, email, password });
+      localStorage.setItem('token', res.data.token);
+      setUser(res.data.user); 
+      setIsAuthenticated(true);
+      return res.data;
     } catch (error) {
       console.error('Registration error:', error.response ? error.response.data.message : error.message);
-      return { success: false, message: error.response ? error.response.data.message : 'Unknown error' };
+      throw error;
     }
   };
 
   const logout = () => {
     localStorage.removeItem('token');
-    setToken(null);
+
     setUser(null);
-    navigate('/login');
+    setIsAuthenticated(false);
   };
 
-  const authContextValue = {
-    user,
-    token,
-    loading,
-    login,
-    register,
-    logout,
-    isAuthenticated: !!token && !!user,
+  const updateUser = (updatedUserData) => {
+    setUser(updatedUserData);
+
   };
 
   return (
-    <AuthContext.Provider value={authContextValue}>
-      {!loading && children}
+    <AuthContext.Provider value={{ isAuthenticated, user, loading, login, register, logout, updateUser }}>
+      {children}
     </AuthContext.Provider>
   );
 };

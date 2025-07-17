@@ -1,59 +1,64 @@
+// backend/src/models/userModel.js
+
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
-const Schema = mongoose.Schema;
+const jwt = require('jsonwebtoken');
 
-const userSchema = new Schema({
+const userSchema = new mongoose.Schema({
   fullName: {
     type: String,
     required: [true, 'Please add a full name'],
+    trim: true
   },
   email: {
     type: String,
     required: [true, 'Please add an email'],
     unique: true,
     match: [
-      /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
-      'Please enter a valid email',
+      /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/,
+      'Please add a valid email'
     ],
+    lowercase: true,
+    trim: true
   },
   password: {
     type: String,
     required: [true, 'Please add a password'],
     minlength: 6,
-    select: false,
+    select: false 
   },
   role: {
     type: String,
     enum: ['user', 'admin'],
-    default: 'user',
+    default: 'user'
   },
   createdAt: {
     type: Date,
-    default: Date.now,
-  },
-}, {
-  toJSON: { virtuals: true },
-  toObject: { virtuals: true },
+    default: Date.now
+  }
 });
 
+
 userSchema.pre('save', async function (next) {
+
   if (!this.isModified('password')) {
-    next();
+    return next(); 
   }
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
-  next();
+  next(); 
 });
+
+
+userSchema.methods.getSignedJwtToken = function () {
+  return jwt.sign({ id: this._id.toString() }, process.env.JWT_SECRET, {
+    expiresIn: process.env.JWT_EXPIRE || '1h'
+  });
+};
+
 
 userSchema.methods.matchPassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };
-
-userSchema.virtual('blogCount', {
-  ref: 'Blog',
-  localField: '_id',
-  foreignField: 'authorId',
-  count: true,
-});
 
 module.exports = mongoose.model('User', userSchema);
